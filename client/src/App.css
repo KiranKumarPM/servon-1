@@ -1,0 +1,131 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f8fafc;
+  overflow-x: hidden;
+}
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Smooth transitions */
+.MuiButton-root,
+.MuiIconButton-root,
+.MuiTypography-root a {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced button hover effects */
+.MuiButton-contained:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.2);
+}
+
+.MuiButton-outlined:hover {
+  background-color: rgba(37, 99, 235, 0.04);
+}
+
+/* Card animations */
+.MuiCard-root {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.MuiCard-root:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.12);
+}
+
+/* Menu animations */
+.MuiMenuItem-root {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.MuiMenuItem-root:hover {
+  background-color: rgba(37, 99, 235, 0.04);
+  padding-left: 24px;
+}
+
+.MuiMenuItem-root::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background-color: #2563eb;
+  transition: width 0.2s ease;
+}
+
+.MuiMenuItem-root:hover::before {
+  width: 4px;
+}
+
+/* AppBar scroll effect */
+.MuiAppBar-root {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Container spacing */
+.MuiContainer-root {
+  flex: 1;
+  position: relative;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .MuiContainer-root {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .MuiCard-root:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Link styles */
+a {
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+
+/* Custom animations */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Apply floating animation to specific elements */
+.floating {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Apply pulse animation to specific elements */
+.pulsing {
+  animation: pulse 2s ease-in-out infinite;
+}

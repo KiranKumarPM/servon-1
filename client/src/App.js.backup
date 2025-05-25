@@ -1,0 +1,565 @@
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import Login from './components/Login';
+import Register from './components/Register';
+import HowItWorks from './components/HowItWorks';
+import Dashboard from './components/Dashboard';
+import Profile from './components/Profile';
+import Services from './components/Services';
+import ServiceDetail from './components/ServiceDetail';
+import Messages from './components/Messages';
+import AIRecommendations from './components/AIRecommendations';
+import Quotations from './components/Quotations';
+import CustomerDashboard from './components/CustomerDashboard';
+import ProviderDashboard from './components/ProviderDashboard';
+import { 
+  AppBar, 
+  Toolbar, 
+  Typography, 
+  Button, 
+  Container,
+  Box,
+  IconButton,
+  Menu,
+  MenuItem,
+  ThemeProvider,
+  Stack,
+  Divider,
+  Fade,
+  useScrollTrigger,
+  Card,
+  CardContent,
+  Grow,
+  Grid
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import HandymanOutlinedIcon from '@mui/icons-material/HandymanOutlined';
+import theme from './theme';
+import './App.css';
+
+function App() {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [user, setUser] = useState(null);
+  
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    if (token && userData) {
+      setIsLoggedIn(true);
+      setUser(JSON.parse(userData));
+    }
+  }, []);
+  
+  // Update user state when localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      if (token && userData) {
+        setIsLoggedIn(true);
+        setUser(JSON.parse(userData));
+      } else {
+        setIsLoggedIn(false);
+        setUser(null);
+      }
+    };
+    
+    // Call once immediately to ensure state is updated
+    handleStorageChange();
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+  
+  // Using scroll trigger for UI effects
+  useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 100,
+  });
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    // Clear user data from state
+    setIsLoggedIn(false);
+    setUser(null);
+    
+    // Clear localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Close menu if open
+    handleClose();
+    
+    // Redirect to home page
+    window.location.href = '/';
+    
+    console.log('User logged out successfully');
+  };
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Router>
+        <div className="App">
+          <AppBar position="fixed" elevation={0}>
+            <Container maxWidth="lg">
+              <Toolbar disableGutters>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={1}
+                  sx={{ flexGrow: 1 }}
+                >
+                  <HandymanOutlinedIcon sx={{ color: 'primary.main', fontSize: 28 }} />
+                  <Typography
+                    variant="h6"
+                    component={Link}
+                    to="/"
+                    sx={{
+                      textDecoration: 'none',
+                      color: 'primary.main',
+                      fontWeight: 600,
+                      '&:hover': { color: 'primary.dark' }
+                    }}
+                  >
+                    SERVON
+                  </Typography>
+                </Stack>
+
+                {/* Desktop Navigation */}
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ display: { xs: 'none', md: 'flex' } }}
+                >
+                  <Button
+                    component={Link}
+                    to="/services"
+                    color="primary"
+                    sx={{ fontWeight: 500 }}
+                  >
+                    Services
+                  </Button>
+                  <Button
+                    component={Link}
+                    to="/ai-recommendations"
+                    color="primary"
+                    sx={{ fontWeight: 500 }}
+                  >
+                    AI Assistant
+                  </Button>
+                  <Button
+                    component={Link}
+                    to="/how-it-works"
+                    color="primary"
+                    sx={{ fontWeight: 500 }}
+                  >
+                    How it Works
+                  </Button>
+                  {!isLoggedIn ? (
+                    <>
+                      <Button
+                        component={Link}
+                        to="/login"
+                        color="primary"
+                        variant="outlined"
+                        sx={{ fontWeight: 500, mr: 1 }}
+                      >
+                        Login
+                      </Button>
+                      <Button
+                        component={Link}
+                        to="/register"
+                        color="primary"
+                        variant="contained"
+                        sx={{ fontWeight: 500 }}
+                      >
+                        Register
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      {user?.userType === 'provider' ? (
+                        <Button
+                          component={Link}
+                          to="/provider/dashboard"
+                          color="primary"
+                          sx={{ fontWeight: 500, mr: 1 }}
+                        >
+                          Provider Dashboard
+                        </Button>
+                      ) : (
+                        <Button
+                          component={Link}
+                          to="/customer/dashboard"
+                          color="primary"
+                          sx={{ fontWeight: 500, mr: 1 }}
+                        >
+                          My Dashboard
+                        </Button>
+                      )}
+                      <Button
+                        onClick={handleLogout}
+                        color="primary"
+                        variant="outlined"
+                        sx={{ fontWeight: 500 }}
+                      >
+                        Sign Out
+                      </Button>
+                    </>
+                  )}
+                </Stack>
+
+                {/* Mobile Navigation */}
+                <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+                  <IconButton
+                    size="large"
+                    aria-label="menu"
+                    aria-controls="menu-appbar"
+                    aria-haspopup="true"
+                    onClick={handleMenu}
+                    color="primary"
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                  <Menu
+                    id="menu-appbar"
+                    anchorEl={anchorEl}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'right',
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                  >
+                    <MenuItem onClick={handleClose} component={Link} to="/services">
+                      Services
+                    </MenuItem>
+                    <MenuItem onClick={handleClose} component={Link} to="/ai-recommendations">
+                      AI Assistant
+                    </MenuItem>
+                    <MenuItem onClick={handleClose} component={Link} to="/how-it-works">
+                      How it Works
+                    </MenuItem>
+                    {isLoggedIn ? (
+                      <>
+                        {user?.userType === 'provider' ? (
+                          <MenuItem onClick={handleClose} component={Link} to="/provider/dashboard">
+                            Provider Dashboard
+                          </MenuItem>
+                        ) : (
+                          <MenuItem onClick={handleClose} component={Link} to="/customer/dashboard">
+                            My Dashboard
+                          </MenuItem>
+                        )}
+                        <MenuItem onClick={handleClose} component={Link} to="/quotations">
+                          Quotations
+                        </MenuItem>
+                        <MenuItem onClick={handleClose} component={Link} to="/messages">
+                          Messages
+                        </MenuItem>
+                        <Divider />
+                        <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
+                          Sign Out
+                        </MenuItem>
+                      </>
+                    ) : (
+                      <>
+                        <Divider />
+                        <MenuItem onClick={handleClose} component={Link} to="/login">
+                          Login
+                        </MenuItem>
+                        <MenuItem onClick={handleClose} component={Link} to="/register">
+                          Register
+                        </MenuItem>
+                      </>
+                    )}
+                  </Menu>
+                </Box>
+
+                  onClick={handleMenu}
+                  sx={{ display: { xs: 'flex', md: 'none' } }}
+                >
+                  <MenuIcon />
+                </IconButton>
+              </Toolbar>
+            </Container>
+          </AppBar>
+
+          {/* Mobile Menu Dropdown */}
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            PaperProps={{
+              sx: {
+                bgcolor: 'background.paper',
+                boxShadow: '0 8px 20px rgba(0, 0, 0, 0.1)',
+                borderRadius: 2,
+                border: '1px solid rgba(0, 0, 0, 0.05)',
+              }
+            }}
+          >
+            {[
+              <MenuItem key="services" onClick={handleClose} component={Link} to="/services" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                Services
+              </MenuItem>,
+              <MenuItem key="how-it-works" onClick={handleClose} component={Link} to="/how-it-works" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                How it Works
+              </MenuItem>,
+              <Divider key="divider" />,
+              ...(isLoggedIn ? [
+                <MenuItem key="dashboard" onClick={handleClose} component={Link} to="/dashboard" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                  Dashboard
+                </MenuItem>,
+                <MenuItem key="logout" onClick={handleLogout} sx={{ color: 'text.primary', fontWeight: 500 }}>
+                  Logout
+                </MenuItem>
+              ] : [
+                <MenuItem key="login" onClick={handleClose} component={Link} to="/login" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                  Login
+                </MenuItem>,
+                <MenuItem key="register" onClick={handleClose} component={Link} to="/register" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                  Register
+                </MenuItem>
+              ])
+            ]}
+          </Menu>
+
+          {/* Main Content */}
+          <Box sx={{ pt: '64px' }}> {/* Offset for fixed AppBar */}
+            <Container maxWidth="lg" sx={{ py: 4 }}>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/services" element={
+                  <Box sx={{ py: 4 }}>
+                    <Fade in={isLoaded} timeout={1000}>
+                      <Typography
+                        variant="h4"
+                        gutterBottom
+                        sx={{
+                          fontWeight: 700,
+                          color: 'primary.main',
+                          mb: 4,
+                          textAlign: 'center'
+                        }}
+                      >
+                        Our Services
+                      </Typography>
+                    </Fade>
+                    
+                    <Grid container spacing={3}>
+                      {[
+                        { title: 'Home Cleaning', icon: '🏠', description: 'Professional home cleaning services' },
+                        { title: 'Plumbing', icon: '🔧', description: 'Expert plumbing solutions' },
+                        { title: 'Electrical', icon: '⚡', description: 'Certified electrical services' },
+                        { title: 'Painting', icon: '🎨', description: 'Interior and exterior painting' },
+                        { title: 'Carpentry', icon: '🔨', description: 'Custom carpentry work' },
+                        { title: 'Gardening', icon: '🌿', description: 'Professional garden maintenance' },
+                      ].map((service, index) => (
+                        <Grid item xs={12} sm={6} md={4} key={service.title}>
+                          <Grow in={isLoaded} timeout={1000 + (index * 200)}>
+                            <Card
+                              sx={{
+                                height: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                cursor: 'pointer',
+                                '&:hover': {
+                                  transform: 'translateY(-8px)',
+                                  bgcolor: 'background.accent',
+                                }
+                              }}
+                            >
+                              <CardContent sx={{ p: 3, flexGrow: 1 }}>
+                                <Typography
+                                  variant="h2"
+                                  sx={{ mb: 2, textAlign: 'center', fontSize: '3rem' }}
+                                >
+                                  {service.icon}
+                                </Typography>
+                                <Typography
+                                  variant="h6"
+                                  sx={{ mb: 1, color: 'primary.main', fontWeight: 600, textAlign: 'center' }}
+                                >
+                                  {service.title}
+                                </Typography>
+                                <Typography
+                                  variant="body1"
+                                  color="text.secondary"
+                                  sx={{ textAlign: 'center' }}
+                                >
+                                  {service.description}
+                                </Typography>
+                              </CardContent>
+                              <Box sx={{ p: 2, pt: 0 }}>
+                                <Button
+                                  variant="outlined"
+                                  color="primary"
+                                  fullWidth
+                                  sx={{
+                                    '&:hover': {
+                                      bgcolor: 'primary.main',
+                                      color: 'white',
+                                    }
+                                  }}
+                                >
+                                  Get Quote
+                                </Button>
+                              </Box>
+                            </Card>
+                          </Grow>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Box>
+                } />
+                <Route path="/" element={
+                  <Box sx={{ textAlign: 'center', py: 8 }}>
+                    <Fade in={isLoaded} timeout={1000}>
+                      <Typography
+                        variant="h4"
+                        gutterBottom
+                        sx={{
+                          fontWeight: 700,
+                          color: 'primary.main',
+                          mb: 2,
+                          animation: 'fadeIn 0.8s ease-out',
+                        }}
+                      >
+                        Find Trusted Service Providers
+                      </Typography>
+                    </Fade>
+
+                    <Fade in={isLoaded} timeout={1500}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          color: 'text.secondary',
+                          maxWidth: 600,
+                          mx: 'auto',
+                          mb: 4,
+                          animation: 'fadeIn 0.8s ease-out',
+                          animationDelay: '0.2s',
+                        }}
+                      >
+                        Connect with verified professionals and get quotes for just ₹1
+                      </Typography>
+                    </Fade>
+
+                    <Fade in={isLoaded} timeout={2000}>
+                      <Box>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          size="large"
+                          component={Link}
+                          to="/services"
+                          sx={{
+                            px: 4,
+                            py: 1.5,
+                            animation: 'fadeIn 0.8s ease-out',
+                            animationDelay: '0.4s',
+                            '&:hover': {
+                              transform: 'translateY(-2px) scale(1.02)',
+                              boxShadow: '0 6px 20px rgba(37, 99, 235, 0.2)',
+                            },
+                          }}
+                        >
+                          Explore Services
+                        </Button>
+                      </Box>
+                    </Fade>
+
+                    <Box sx={{ mt: 8 }}>
+                      <Stack
+                        direction={{ xs: 'column', md: 'row' }}
+                        spacing={3}
+                        justifyContent="center"
+                        sx={{ mt: 6 }}
+                      >
+                        {[
+                          { title: 'Verified Providers', description: 'All service providers are thoroughly verified' },
+                          { title: 'Instant Quotes', description: 'Get quotes from multiple providers instantly' },
+                          { title: 'Secure Payments', description: 'Safe and secure payment processing' }
+                        ].map((feature, index) => (
+                          <Grow
+                            in={isLoaded}
+                            timeout={1000 + (index * 200)}
+                            key={feature.title}
+                          >
+                            <Card
+                              sx={{
+                                maxWidth: 300,
+                                bgcolor: 'background.paper',
+                                '&:hover': {
+                                  bgcolor: 'background.accent',
+                                }
+                              }}
+                            >
+                              <CardContent sx={{ textAlign: 'left', p: 3 }}>
+                                <Typography
+                                  variant="h6"
+                                  sx={{ mb: 1, color: 'primary.main', fontWeight: 600 }}
+                                >
+                                  {feature.title}
+                                </Typography>
+                                <Typography variant="body1" color="text.secondary">
+                                  {feature.description}
+                                </Typography>
+                              </CardContent>
+                            </Card>
+                          </Grow>
+                        ))}
+                      </Stack>
+                    </Box>
+                  </Box>
+                } />
+                <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/services" element={<Services />} />
+                <Route path="/service/:id" element={<ServiceDetail />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/ai-recommendations" element={<AIRecommendations />} />
+                <Route path="/quotations" element={<Quotations />} />
+                <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+                <Route path="/provider/dashboard" element={<ProviderDashboard />} />
+              </Routes>
+            </Container>
+          </Box>
+        </div>
+      </Router>
+    </ThemeProvider>
+  );
+}
+
+export default App;
